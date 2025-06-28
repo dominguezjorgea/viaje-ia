@@ -165,6 +165,56 @@ function App() {
     return '❄️';
   };
 
+  const handleDownloadPDF = async () => {
+    try {
+      // Mostrar indicador de carga
+      const button = document.querySelector('.download-pdf-button');
+      const originalText = button.textContent;
+      button.textContent = '⏳ Generando PDF...';
+      button.disabled = true;
+
+      // Llamar al endpoint del backend
+      const response = await fetch(`http://localhost:3001/api/descargar-itinerario/${sessionId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al generar el PDF');
+      }
+
+      // Obtener el blob del PDF
+      const blob = await response.blob();
+      
+      // Crear URL del blob y descargar
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `itinerario-viaje-${sessionId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      // Restaurar botón
+      button.textContent = originalText;
+      button.disabled = false;
+
+    } catch (error) {
+      console.error('Error descargando PDF:', error);
+      alert('Error al generar el PDF. Por favor, intenta de nuevo.');
+      
+      // Restaurar botón en caso de error
+      const button = document.querySelector('.download-pdf-button');
+      if (button) {
+        button.textContent = '📄 Descargar mi itinerario en PDF';
+        button.disabled = false;
+      }
+    }
+  };
+
   return (
     <div className="App">
       <div className="chat-container" ref={chatContainerRef}>
@@ -419,6 +469,19 @@ function App() {
             💡 Alex recuerda el contexto de la conversación. Puedes preguntar "¿y qué tal el transporte allí?" y sabrá a qué destino te refieres.
           </div>
         </div>
+
+        {/* Botón de descarga de PDF */}
+        {messages.length > 0 && (
+          <div className="pdf-download-container">
+            <button 
+              onClick={handleDownloadPDF}
+              className="download-pdf-button"
+              title="Descargar mi itinerario en PDF"
+            >
+              📄 Descargar mi itinerario en PDF
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Sidebar con información en tiempo real */}
