@@ -18,6 +18,7 @@ function App() {
   const [historialPreguntas, setHistorialPreguntas] = useState([]);
   const [ultimoDestino, setUltimoDestino] = useState(null);
   const [showHistorial, setShowHistorial] = useState(false);
+  const [ciudadesConsultadas, setCiudadesConsultadas] = useState([]);
   
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
@@ -40,10 +41,10 @@ function App() {
     const surveyMessage = `Hola Alex! Quiero planificar un viaje a ${surveyData.destination} del ${surveyData.dates}. Mi presupuesto es ${surveyData.budget} y me interesa una experiencia de ${surveyData.preference}. ¿Puedes ayudarme a planificar este viaje?`;
     
     setShowSurvey(false);
-    await sendMessage(surveyMessage);
+    await sendMessage(surveyMessage, true); // true indica que es formulario inicial
   };
 
-  const sendMessage = async (message = null) => {
+  const sendMessage = async (message = null, esFormularioInicial = false) => {
     const currentMessage = message || inputMessage.trim();
     if (!currentMessage) return;
 
@@ -72,7 +73,8 @@ function App() {
             role: msg.sender === 'user' ? 'user' : 'assistant',
             content: msg.text
           })),
-          sessionId: sessionId
+          sessionId: sessionId,
+          esFormularioInicial: esFormularioInicial
         }),
       });
 
@@ -95,15 +97,18 @@ function App() {
 
       setMessages(prev => [...prev, alexMessage]);
       
-      // Actualizar historial y último destino
+      // Actualizar historial, último destino y ciudades consultadas
       if (data.historial) {
         setHistorialPreguntas(data.historial);
       }
       if (data.ultimoDestino) {
         setUltimoDestino(data.ultimoDestino);
       }
+      if (data.ciudadesConsultadas) {
+        setCiudadesConsultadas(data.ciudadesConsultadas);
+      }
 
-      // Obtener información en tiempo real si hay ciudad
+      // Obtener información en tiempo real solo de la última ciudad mencionada
       if (data.ciudadInfo) {
         await fetchSidebarInfo(data.ciudadInfo.nombre);
       }
@@ -180,6 +185,25 @@ function App() {
               >
                 📋 Historial
               </button>
+              {ciudadesConsultadas.length > 0 && (
+                <div className="ciudades-consultadas">
+                  <span>🌍 {ciudadesConsultadas.length} ciudad{ciudadesConsultadas.length > 1 ? 'es' : ''}</span>
+                  <div className="ciudades-tooltip">
+                    <div className="ciudades-list">
+                      {ciudadesConsultadas.map((ciudad, index) => (
+                        <div key={index} className="ciudad-item">
+                          <span className={`ciudad-nombre ${ciudad.nombre === ultimoDestino?.nombre ? 'ciudad-actual' : ''}`}>
+                            {ciudad.nombre}
+                          </span>
+                          {ciudad.nombre === ultimoDestino?.nombre && (
+                            <span className="ciudad-principal">📍 Principal</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
               {ultimoDestino && (
                 <div className="ultimo-destino">
                   <span>📍 Último: {ultimoDestino.nombre}</span>

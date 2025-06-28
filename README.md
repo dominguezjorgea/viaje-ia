@@ -18,6 +18,14 @@ Una aplicación web moderna que combina inteligencia artificial con datos en tie
 - **Referencias automáticas**: Alex automáticamente usa el último destino mencionado cuando no especificas uno
 - **Seguimiento de conversación**: Construye respuestas basadas en preguntas anteriores
 
+### 🌍 Manejo de Múltiples Ciudades
+
+- **Listado de ciudades**: Mantiene un historial de todas las ciudades mencionadas en la conversación
+- **Validación inicial**: Si mencionas múltiples ciudades en el formulario, Alex toma la primera como principal y te confirma
+- **Referencias múltiples**: Puedes preguntar sobre cualquier ciudad del listado ("¿qué tal Roma?" o "¿y en Londres cómo está el clima?")
+- **Panel visual**: Tooltip que muestra todas las ciudades consultadas con indicador de la ciudad principal
+- **Panel de tiempo real**: Siempre muestra información de la última ciudad mencionada
+
 ### 🌤️ Información en Tiempo Real
 
 - **Clima actual**: Temperatura, sensación térmica, humedad y descripción del clima
@@ -144,17 +152,20 @@ La aplicación estará disponible en `http://localhost:3000`
 ### 1. Formulario Inicial
 
 - Completa el formulario con tu destino, fechas, presupuesto y preferencias
+- **Múltiples ciudades**: Si escribes "París, Roma, Londres", Alex tomará París como principal y te confirmará las otras ciudades
 - Esta información ayuda a Alex a darte recomendaciones más específicas
 
 ### 2. Chat con Alex
 
 - Escribe preguntas naturales como "¿Qué tal el transporte allí?"
 - Alex recordará el contexto y te dará respuestas personalizadas
+- **Referencias múltiples**: Puedes preguntar "¿qué tal Roma?" o "¿y en Londres cómo está el clima?" y Alex sabrá a qué te refieres
 - Usa el botón "📋 Historial" para ver tus preguntas anteriores
+- **Panel de ciudades**: Hover sobre "🌍 X ciudades" para ver todas las ciudades consultadas
 
 ### 3. Información en Tiempo Real
 
-- El panel lateral se actualiza automáticamente con información del destino
+- El panel lateral se actualiza automáticamente con información del **último destino mencionado**
 - Incluye clima, tipo de cambio y diferencia horaria
 - Se puede cerrar y abrir según necesites
 

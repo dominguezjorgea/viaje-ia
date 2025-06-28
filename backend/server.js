@@ -23,6 +23,7 @@ const sesionesContexto = new Map();
 // Mapeo de ciudades a zonas horarias y monedas
 const ciudadesInfo = {
   'paris': { timezone: 'Europe/Paris', currency: 'EUR', country: 'Francia' },
+  'parís': { timezone: 'Europe/Paris', currency: 'EUR', country: 'Francia' },
   'madrid': { timezone: 'Europe/Madrid', currency: 'EUR', country: 'España' },
   'barcelona': { timezone: 'Europe/Madrid', currency: 'EUR', country: 'España' },
   'roma': { timezone: 'Europe/Rome', currency: 'EUR', country: 'Italia' },
@@ -30,13 +31,16 @@ const ciudadesInfo = {
   'london': { timezone: 'Europe/London', currency: 'GBP', country: 'Reino Unido' },
   'londres': { timezone: 'Europe/London', currency: 'GBP', country: 'Reino Unido' },
   'new york': { timezone: 'America/New_York', currency: 'USD', country: 'Estados Unidos' },
+  'nueva york': { timezone: 'America/New_York', currency: 'USD', country: 'Estados Unidos' },
   'tokyo': { timezone: 'Asia/Tokyo', currency: 'JPY', country: 'Japón' },
   'tokio': { timezone: 'Asia/Tokyo', currency: 'JPY', country: 'Japón' },
   'sydney': { timezone: 'Australia/Sydney', currency: 'AUD', country: 'Australia' },
   'sidney': { timezone: 'Australia/Sydney', currency: 'AUD', country: 'Australia' },
+  'sídney': { timezone: 'Australia/Sydney', currency: 'AUD', country: 'Australia' },
   'buenos aires': { timezone: 'America/Argentina/Buenos_Aires', currency: 'ARS', country: 'Argentina' },
   'mexico': { timezone: 'America/Mexico_City', currency: 'MXN', country: 'México' },
   'mexico city': { timezone: 'America/Mexico_City', currency: 'MXN', country: 'México' },
+  'ciudad de mexico': { timezone: 'America/Mexico_City', currency: 'MXN', country: 'México' },
   'bogota': { timezone: 'America/Bogota', currency: 'COP', country: 'Colombia' },
   'bogotá': { timezone: 'America/Bogota', currency: 'COP', country: 'Colombia' },
   'lima': { timezone: 'America/Lima', currency: 'PEN', country: 'Perú' },
@@ -44,6 +48,7 @@ const ciudadesInfo = {
   'rio de janeiro': { timezone: 'America/Sao_Paulo', currency: 'BRL', country: 'Brasil' },
   'sao paulo': { timezone: 'America/Sao_Paulo', currency: 'BRL', country: 'Brasil' },
   'berlin': { timezone: 'Europe/Berlin', currency: 'EUR', country: 'Alemania' },
+  'berlín': { timezone: 'Europe/Berlin', currency: 'EUR', country: 'Alemania' },
   'amsterdam': { timezone: 'Europe/Amsterdam', currency: 'EUR', country: 'Países Bajos' },
   'vienna': { timezone: 'Europe/Vienna', currency: 'EUR', country: 'Austria' },
   'viena': { timezone: 'Europe/Vienna', currency: 'EUR', country: 'Austria' },
@@ -52,13 +57,16 @@ const ciudadesInfo = {
   'budapest': { timezone: 'Europe/Budapest', currency: 'HUF', country: 'Hungría' },
   'istanbul': { timezone: 'Europe/Istanbul', currency: 'TRY', country: 'Turquía' },
   'dubai': { timezone: 'Asia/Dubai', currency: 'AED', country: 'Emiratos Árabes Unidos' },
+  'dubái': { timezone: 'Asia/Dubai', currency: 'AED', country: 'Emiratos Árabes Unidos' },
   'singapore': { timezone: 'Asia/Singapore', currency: 'SGD', country: 'Singapur' },
   'singapur': { timezone: 'Asia/Singapore', currency: 'SGD', country: 'Singapur' },
   'bangkok': { timezone: 'Asia/Bangkok', currency: 'THB', country: 'Tailandia' },
   'seoul': { timezone: 'Asia/Seoul', currency: 'KRW', country: 'Corea del Sur' },
   'seul': { timezone: 'Asia/Seoul', currency: 'KRW', country: 'Corea del Sur' },
+  'seúl': { timezone: 'Asia/Seoul', currency: 'KRW', country: 'Corea del Sur' },
   'beijing': { timezone: 'Asia/Shanghai', currency: 'CNY', country: 'China' },
   'pekin': { timezone: 'Asia/Shanghai', currency: 'CNY', country: 'China' },
+  'pekín': { timezone: 'Asia/Shanghai', currency: 'CNY', country: 'China' },
   'shanghai': { timezone: 'Asia/Shanghai', currency: 'CNY', country: 'China' },
   'hong kong': { timezone: 'Asia/Hong_Kong', currency: 'HKD', country: 'Hong Kong' },
   'mumbai': { timezone: 'Asia/Kolkata', currency: 'INR', country: 'India' },
@@ -74,13 +82,16 @@ const ciudadesInfo = {
   'porto': { timezone: 'Europe/Lisbon', currency: 'EUR', country: 'Portugal' },
   'athens': { timezone: 'Europe/Athens', currency: 'EUR', country: 'Grecia' },
   'atena': { timezone: 'Europe/Athens', currency: 'EUR', country: 'Grecia' },
+  'atena': { timezone: 'Europe/Athens', currency: 'EUR', country: 'Grecia' },
   'milan': { timezone: 'Europe/Rome', currency: 'EUR', country: 'Italia' },
+  'milán': { timezone: 'Europe/Rome', currency: 'EUR', country: 'Italia' },
   'venice': { timezone: 'Europe/Rome', currency: 'EUR', country: 'Italia' },
   'venecia': { timezone: 'Europe/Rome', currency: 'EUR', country: 'Italia' },
   'florence': { timezone: 'Europe/Rome', currency: 'EUR', country: 'Italia' },
   'florencia': { timezone: 'Europe/Rome', currency: 'EUR', country: 'Italia' },
   'naples': { timezone: 'Europe/Rome', currency: 'EUR', country: 'Italia' },
   'napoles': { timezone: 'Europe/Rome', currency: 'EUR', country: 'Italia' },
+  'nápoles': { timezone: 'Europe/Rome', currency: 'EUR', country: 'Italia' },
   'seville': { timezone: 'Europe/Madrid', currency: 'EUR', country: 'España' },
   'sevilla': { timezone: 'Europe/Madrid', currency: 'EUR', country: 'España' },
   'valencia': { timezone: 'Europe/Madrid', currency: 'EUR', country: 'España' },
@@ -208,78 +219,155 @@ async function obtenerClima(ciudad) {
   }
 }
 
-// Función para extraer nombres de ciudades del texto
-function extraerCiudades(texto) {
-  const textoLower = texto.toLowerCase();
-  const ciudadesEncontradas = [];
-
-  for (const [variacion, info] of Object.entries(ciudadesInfo)) {
-    if (textoLower.includes(variacion)) {
-      ciudadesEncontradas.push({
-        nombre: info.country === 'Estados Unidos' ? 'Nueva York' : 
-                info.country === 'España' && variacion.includes('barcelona') ? 'Barcelona' :
-                info.country === 'España' && variacion.includes('madrid') ? 'Madrid' :
-                info.country === 'España' && variacion.includes('seville') ? 'Sevilla' :
-                info.country === 'España' && variacion.includes('valencia') ? 'Valencia' :
-                info.country === 'España' && variacion.includes('granada') ? 'Granada' :
-                info.country === 'España' && variacion.includes('bilbao') ? 'Bilbao' :
-                info.country === 'España' && variacion.includes('san sebastian') ? 'San Sebastián' :
-                info.country === 'España' && variacion.includes('ibiza') ? 'Ibiza' :
-                info.country === 'España' && variacion.includes('mallorca') ? 'Mallorca' :
-                info.country === 'España' && variacion.includes('tenerife') ? 'Tenerife' :
-                info.country === 'España' && variacion.includes('las palmas') ? 'Las Palmas' :
-                info.country === 'Italia' && variacion.includes('roma') ? 'Roma' :
-                info.country === 'Italia' && variacion.includes('milan') ? 'Milán' :
-                info.country === 'Italia' && variacion.includes('venice') ? 'Venecia' :
-                info.country === 'Italia' && variacion.includes('florence') ? 'Florencia' :
-                info.country === 'Italia' && variacion.includes('naples') ? 'Nápoles' :
-                info.country === 'Reino Unido' ? 'Londres' :
-                info.country === 'Japón' ? 'Tokio' :
-                info.country === 'Australia' ? 'Sídney' :
-                info.country === 'Argentina' ? 'Buenos Aires' :
-                info.country === 'México' ? 'Ciudad de México' :
-                info.country === 'Colombia' ? 'Bogotá' :
-                info.country === 'Perú' ? 'Lima' :
-                info.country === 'Chile' ? 'Santiago' :
-                info.country === 'Brasil' ? 'São Paulo' :
-                info.country === 'Alemania' ? 'Berlín' :
-                info.country === 'Países Bajos' ? 'Ámsterdam' :
-                info.country === 'Austria' ? 'Viena' :
-                info.country === 'República Checa' ? 'Praga' :
-                info.country === 'Hungría' ? 'Budapest' :
-                info.country === 'Turquía' ? 'Estambul' :
-                info.country === 'Emiratos Árabes Unidos' ? 'Dubái' :
-                info.country === 'Singapur' ? 'Singapur' :
-                info.country === 'Tailandia' ? 'Bangkok' :
-                info.country === 'Corea del Sur' ? 'Seúl' :
-                info.country === 'China' ? 'Pekín' :
-                info.country === 'Hong Kong' ? 'Hong Kong' :
-                info.country === 'India' ? 'Mumbai' :
-                info.country === 'Egipto' ? 'El Cairo' :
-                info.country === 'Sudáfrica' ? 'Ciudad del Cabo' :
-                info.country === 'Marruecos' ? 'Marrakech' :
-                info.country === 'Portugal' ? 'Lisboa' :
-                info.country === 'Grecia' ? 'Atenas' :
-                'Ciudad',
-        info: info
-      });
-    }
-  }
-
-  return ciudadesEncontradas;
-}
-
 // Función para obtener o crear contexto de sesión
 function obtenerContextoSesion(sessionId) {
   if (!sesionesContexto.has(sessionId)) {
     sesionesContexto.set(sessionId, {
       ultimoDestino: null,
+      ciudadesConsultadas: [], // Listado de todas las ciudades mencionadas
       historialConversacion: [],
       datosViaje: null,
       timestamp: Date.now()
     });
   }
   return sesionesContexto.get(sessionId);
+}
+
+// Función para extraer múltiples ciudades del texto
+function extraerMultiplesCiudades(texto) {
+  const textoLower = texto.toLowerCase();
+  const ciudadesEncontradas = [];
+
+  for (const [variacion, info] of Object.entries(ciudadesInfo)) {
+    if (textoLower.includes(variacion)) {
+      let ciudadNombre;
+      
+      // Asignar nombres específicos según el país y variación
+      if (info.country === 'Estados Unidos') {
+        ciudadNombre = 'Nueva York';
+      } else if (info.country === 'España') {
+        if (variacion.includes('barcelona')) ciudadNombre = 'Barcelona';
+        else if (variacion.includes('madrid')) ciudadNombre = 'Madrid';
+        else if (variacion.includes('seville') || variacion.includes('sevilla')) ciudadNombre = 'Sevilla';
+        else if (variacion.includes('valencia')) ciudadNombre = 'Valencia';
+        else if (variacion.includes('granada')) ciudadNombre = 'Granada';
+        else if (variacion.includes('bilbao')) ciudadNombre = 'Bilbao';
+        else if (variacion.includes('san sebastian') || variacion.includes('san sebastián')) ciudadNombre = 'San Sebastián';
+        else if (variacion.includes('ibiza')) ciudadNombre = 'Ibiza';
+        else if (variacion.includes('mallorca')) ciudadNombre = 'Mallorca';
+        else if (variacion.includes('tenerife')) ciudadNombre = 'Tenerife';
+        else if (variacion.includes('las palmas')) ciudadNombre = 'Las Palmas';
+        else ciudadNombre = 'Ciudad de España';
+      } else if (info.country === 'Italia') {
+        if (variacion.includes('roma')) ciudadNombre = 'Roma';
+        else if (variacion.includes('milan')) ciudadNombre = 'Milán';
+        else if (variacion.includes('venice') || variacion.includes('venecia')) ciudadNombre = 'Venecia';
+        else if (variacion.includes('florence') || variacion.includes('florencia')) ciudadNombre = 'Florencia';
+        else if (variacion.includes('naples') || variacion.includes('napoles')) ciudadNombre = 'Nápoles';
+        else ciudadNombre = 'Ciudad de Italia';
+      } else if (info.country === 'Reino Unido') {
+        ciudadNombre = 'Londres';
+      } else if (info.country === 'Japón') {
+        ciudadNombre = 'Tokio';
+      } else if (info.country === 'Australia') {
+        ciudadNombre = 'Sídney';
+      } else if (info.country === 'Argentina') {
+        ciudadNombre = 'Buenos Aires';
+      } else if (info.country === 'México') {
+        ciudadNombre = 'Ciudad de México';
+      } else if (info.country === 'Colombia') {
+        ciudadNombre = 'Bogotá';
+      } else if (info.country === 'Perú') {
+        ciudadNombre = 'Lima';
+      } else if (info.country === 'Chile') {
+        ciudadNombre = 'Santiago';
+      } else if (info.country === 'Brasil') {
+        ciudadNombre = 'São Paulo';
+      } else if (info.country === 'Alemania') {
+        ciudadNombre = 'Berlín';
+      } else if (info.country === 'Países Bajos') {
+        ciudadNombre = 'Ámsterdam';
+      } else if (info.country === 'Austria') {
+        ciudadNombre = 'Viena';
+      } else if (info.country === 'República Checa') {
+        ciudadNombre = 'Praga';
+      } else if (info.country === 'Hungría') {
+        ciudadNombre = 'Budapest';
+      } else if (info.country === 'Turquía') {
+        ciudadNombre = 'Estambul';
+      } else if (info.country === 'Emiratos Árabes Unidos') {
+        ciudadNombre = 'Dubái';
+      } else if (info.country === 'Singapur') {
+        ciudadNombre = 'Singapur';
+      } else if (info.country === 'Tailandia') {
+        ciudadNombre = 'Bangkok';
+      } else if (info.country === 'Corea del Sur') {
+        ciudadNombre = 'Seúl';
+      } else if (info.country === 'China') {
+        ciudadNombre = 'Pekín';
+      } else if (info.country === 'Hong Kong') {
+        ciudadNombre = 'Hong Kong';
+      } else if (info.country === 'India') {
+        ciudadNombre = 'Mumbai';
+      } else if (info.country === 'Egipto') {
+        ciudadNombre = 'El Cairo';
+      } else if (info.country === 'Sudáfrica') {
+        ciudadNombre = 'Ciudad del Cabo';
+      } else if (info.country === 'Marruecos') {
+        ciudadNombre = 'Marrakech';
+      } else if (info.country === 'Portugal') {
+        ciudadNombre = 'Lisboa';
+      } else if (info.country === 'Grecia') {
+        ciudadNombre = 'Atenas';
+      } else {
+        // Si no hay coincidencia específica, usar el nombre de la variación
+        ciudadNombre = variacion.charAt(0).toUpperCase() + variacion.slice(1);
+      }
+      
+      // Evitar duplicados y no agregar nombres genéricos
+      if (!ciudadesEncontradas.find(c => c.nombre === ciudadNombre) && 
+          !ciudadNombre.includes('Ciudad de') && 
+          ciudadNombre !== 'Ciudad') {
+        ciudadesEncontradas.push({
+          nombre: ciudadNombre,
+          info: info
+        });
+      }
+    }
+  }
+
+  console.log('🏙️ Ciudades extraídas:', ciudadesEncontradas.map(c => c.nombre));
+  return ciudadesEncontradas;
+}
+
+// Función para determinar la ciudad de referencia
+function determinarCiudadReferencia(pregunta, contexto) {
+  const ciudades = extraerMultiplesCiudades(pregunta);
+  
+  // Si se mencionan ciudades en la pregunta actual
+  if (ciudades.length > 0) {
+    // Usar la primera ciudad mencionada como referencia
+    const ciudadReferencia = ciudades[0];
+    
+    // Agregar todas las ciudades encontradas al listado
+    ciudades.forEach(ciudad => {
+      if (!contexto.ciudadesConsultadas.find(c => c.nombre === ciudad.nombre)) {
+        contexto.ciudadesConsultadas.push(ciudad);
+      }
+    });
+    
+    // Actualizar último destino
+    contexto.ultimoDestino = ciudadReferencia;
+    
+    return ciudadReferencia;
+  }
+  
+  // Si no se mencionan ciudades, usar la última consultada
+  if (contexto.ultimoDestino) {
+    return contexto.ultimoDestino;
+  }
+  
+  return null;
 }
 
 // Función para limpiar sesiones antiguas (cada 30 minutos)
@@ -298,7 +386,7 @@ setInterval(() => {
 app.get('/api/info-tiempo-real/:ciudad', async (req, res) => {
   try {
     const { ciudad } = req.params;
-    const ciudades = extraerCiudades(ciudad);
+    const ciudades = extraerMultiplesCiudades(ciudad);
     
     if (ciudades.length === 0) {
       return res.status(404).json({ 
@@ -337,7 +425,7 @@ app.get('/api/info-tiempo-real/:ciudad', async (req, res) => {
 // Ruta para planificar viajes
 app.post('/api/planificar-viaje', async (req, res) => {
   try {
-    const { pregunta, historial = [], sessionId = 'default' } = req.body;
+    const { pregunta, historial = [], sessionId = 'default', esFormularioInicial = false } = req.body;
 
     if (!pregunta || pregunta.trim() === '') {
       return res.status(400).json({ 
@@ -348,19 +436,41 @@ app.post('/api/planificar-viaje', async (req, res) => {
     // Obtener contexto de la sesión
     const contexto = obtenerContextoSesion(sessionId);
     
-    // Extraer ciudades mencionadas en la pregunta
-    const ciudades = extraerCiudades(pregunta);
     let ciudadActual = null;
     let infoClima = null;
     let fotos = null;
+    let mensajeValidacion = '';
 
-    // Determinar la ciudad de referencia
-    if (ciudades.length > 0) {
-      ciudadActual = ciudades[0];
-      contexto.ultimoDestino = ciudadActual;
-    } else if (contexto.ultimoDestino) {
-      // Si no se menciona una ciudad, usar la última consultada
-      ciudadActual = contexto.ultimoDestino;
+    // Manejo especial para formulario inicial
+    if (esFormularioInicial) {
+      const ciudades = extraerMultiplesCiudades(pregunta);
+      
+      console.log('🔍 Ciudades detectadas en formulario inicial:', ciudades.map(c => c.nombre));
+      
+      if (ciudades.length > 0) {
+        // Tomar la primera ciudad como principal
+        ciudadActual = ciudades[0];
+        contexto.ultimoDestino = ciudadActual;
+        
+        console.log('📍 Ciudad principal seleccionada:', ciudadActual.nombre);
+        
+        // Agregar todas las ciudades al listado
+        ciudades.forEach(ciudad => {
+          if (!contexto.ciudadesConsultadas.find(c => c.nombre === ciudad.nombre)) {
+            contexto.ciudadesConsultadas.push(ciudad);
+          }
+        });
+        
+        // Crear mensaje de validación si hay múltiples ciudades
+        if (ciudades.length > 1) {
+          const otrasCiudades = ciudades.slice(1).map(c => c.nombre).join(', ');
+          mensajeValidacion = `\n\n✅ **Confirmación**: He tomado **${ciudadActual.nombre}** como tu destino principal. También mencionaste: ${otrasCiudades}. Puedes preguntarme sobre cualquiera de estos destinos en cualquier momento.`;
+        }
+      }
+    } else {
+      // Procesamiento normal para preguntas posteriores
+      ciudadActual = determinarCiudadReferencia(pregunta, contexto);
+      console.log('🔍 Ciudad de referencia para pregunta normal:', ciudadActual?.nombre);
     }
 
     // Obtener clima y fotos si hay ciudad
@@ -398,10 +508,24 @@ Siempre me presento como "Alex, tu consultor personal de viajes" y soy:
 • Organizado - uso bullets (•) para estructurar la información
 • Visual - incluyo emojis de viajes relevantes en mis respuestas
 
+Mi estilo de respuesta:
+1. Me presento brevemente como Alex
+2. Muestro entusiasmo por tu consulta
+3. Hago 2-3 preguntas específicas para personalizar mejor mi recomendación
+4. Proporciono información organizada con bullets y emojis
+5. Termino con una nota amigable y motivacional
+
 CONTEXTO IMPORTANTE:
 • Último destino consultado: ${contexto.ultimoDestino ? contexto.ultimoDestino.nombre : 'Ninguno'}
+• Todas las ciudades mencionadas: ${contexto.ciudadesConsultadas.map(c => c.nombre).join(', ') || 'Ninguna'}
 • Historial de preguntas: ${contexto.historialConversacion.map(h => h.pregunta).join(', ')}
 • Si el usuario pregunta sobre "allí", "el lugar", "el destino", etc., me refiero a ${contexto.ultimoDestino ? contexto.ultimoDestino.nombre : 'el último destino mencionado'}
+
+MANEJO DE MÚLTIPLES CIUDADES:
+• Si el usuario menciona múltiples ciudades, puedo referenciar cualquiera de ellas
+• Si pregunta "¿qué tal Roma?" y Roma está en el listado, respondo sobre Roma
+• Si pregunta "¿y en Londres cómo está el clima?" y Londres está en el listado, respondo sobre Londres
+• Siempre mantengo el contexto de todas las ciudades mencionadas
 
 IMPORTANTE - Uso del contexto inicial:
 Si el usuario ya completó el formulario inicial, tengo información sobre:
@@ -450,6 +574,11 @@ Sé específico, útil y siempre mantén un tono cálido y profesional.`
 
     let respuesta = completion.choices[0].message.content;
 
+    // Agregar mensaje de validación si es necesario
+    if (mensajeValidacion) {
+      respuesta += mensajeValidacion;
+    }
+
     // Agregar información del clima si está disponible
     if (infoClima) {
       const climaInfo = `
@@ -480,7 +609,8 @@ Sé específico, útil y siempre mantén un tono cálido y profesional.`
       fotos: fotos,
       ciudadInfo: ciudadActual,
       historial: contexto.historialConversacion,
-      ultimoDestino: contexto.ultimoDestino
+      ultimoDestino: contexto.ultimoDestino,
+      ciudadesConsultadas: contexto.ciudadesConsultadas
     });
 
   } catch (error) {
@@ -500,6 +630,7 @@ app.get('/api/historial/:sessionId', (req, res) => {
     res.json({
       historial: contexto.historialConversacion,
       ultimoDestino: contexto.ultimoDestino,
+      ciudadesConsultadas: contexto.ciudadesConsultadas,
       datosViaje: contexto.datosViaje
     });
   } catch (error) {
