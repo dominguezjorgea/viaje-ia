@@ -14,6 +14,8 @@ function App() {
     presupuesto: '',
     preferencia: ''
   });
+  const [infoTiempoReal, setInfoTiempoReal] = useState(null);
+  const [cargandoInfo, setCargandoInfo] = useState(false);
   const chatRef = useRef(null);
 
   // Auto-scroll al último mensaje
@@ -23,26 +25,23 @@ function App() {
     }
   }, [mensajes]);
 
-  // Mensaje de bienvenida inicial
-  useEffect(() => {
-    setMensajes([
-      {
-        id: 1,
-        tipo: 'alex',
-        contenido: `¡Hola! Soy Alex, tu consultor personal de viajes ✈️🌍
-
-¡Me encanta ayudarte a planificar tus aventuras! 
-
-¿A dónde te gustaría viajar hoy? Puedes contarme sobre:
-• Tu destino soñado 🗺️
-• El tipo de experiencia que buscas 🎯
-• Tu presupuesto y tiempo disponible ⏰💰
-
-¡Estoy aquí para hacer de tu viaje algo increíble! 😊`,
-        timestamp: new Date()
+  // Función para obtener información en tiempo real
+  const obtenerInfoTiempoReal = async (ciudad) => {
+    if (!ciudad) return;
+    
+    setCargandoInfo(true);
+    try {
+      const response = await fetch(`http://localhost:3001/api/info-tiempo-real/${encodeURIComponent(ciudad)}`);
+      if (response.ok) {
+        const data = await response.json();
+        setInfoTiempoReal(data);
       }
-    ]);
-  }, []);
+    } catch (error) {
+      console.log('Error obteniendo información en tiempo real:', error);
+    } finally {
+      setCargandoInfo(false);
+    }
+  };
 
   const handleEncuestaSubmit = (e) => {
     e.preventDefault();
@@ -64,6 +63,9 @@ function App() {
 
     setMensajes([mensajeInicial]);
     setMostrarEncuesta(false);
+    
+    // Obtener información en tiempo real del destino
+    obtenerInfoTiempoReal(datosViaje.destino);
     
     // Enviar automáticamente la primera consulta
     enviarMensajeInicial(mensajeInicial.contenido);
@@ -157,6 +159,11 @@ function App() {
       };
 
       setMensajes(prev => [...prev, respuestaAlex]);
+
+      // Actualizar información en tiempo real si hay nueva ciudad
+      if (data.ciudadInfo) {
+        obtenerInfoTiempoReal(data.ciudadInfo.nombre);
+      }
     } catch (err) {
       setError(err.message || 'Error de conexión. Verifica que el servidor esté corriendo.');
     } finally {
@@ -284,103 +291,189 @@ function App() {
 
   return (
     <div className="App">
-      <div className="container">
-        <h1>ViajeIA - Alex, Tu Consultor Personal de Viajes</h1>
-        
-        {/* Área del chat */}
-        <div className="chat-container" ref={chatRef}>
-          {mensajes.map((mensaje) => (
-            <div 
-              key={mensaje.id} 
-              className={`mensaje ${mensaje.tipo === 'usuario' ? 'mensaje-usuario' : 'mensaje-alex'}`}
-            >
-              <div className="mensaje-header">
-                <span className="mensaje-autor">
-                  {mensaje.tipo === 'usuario' ? 'Tú' : 'Alex ✈️'}
-                </span>
-                <span className="mensaje-hora">
-                  {formatearHora(mensaje.timestamp)}
-                </span>
+      <div className="app-layout">
+        {/* Panel lateral */}
+        <div className="sidebar">
+          <div className="sidebar-header">
+            <h3>🌍 Información en Tiempo Real</h3>
+          </div>
+          
+          {cargandoInfo ? (
+            <div className="sidebar-loading">
+              <div className="loading-spinner"></div>
+              <p>Actualizando información...</p>
+            </div>
+          ) : infoTiempoReal ? (
+            <div className="sidebar-content">
+              <div className="info-card">
+                <h4>📍 {infoTiempoReal.ciudad}</h4>
+                <p className="pais">{infoTiempoReal.pais}</p>
               </div>
-              <div className="mensaje-contenido">
-                {mensaje.contenido.split('\n').map((line, index) => (
-                  <p key={index}>{line}</p>
-                ))}
-                
-                {/* Mostrar fotos si están disponibles */}
-                {mensaje.fotos && mensaje.fotos.length > 0 && (
-                  <div className="fotos-container">
-                    <div className="fotos-grid">
-                      {mensaje.fotos.map((foto, index) => (
-                        <div key={index} className="foto-item">
-                          <img 
-                            src={foto.url} 
-                            alt={foto.alt}
-                            className="foto-destino"
-                            loading="lazy"
-                          />
-                          <div className="foto-credito">
-                            <a 
-                              href={foto.photographerUrl} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="fotografo-link"
-                            >
-                              📸 {foto.photographer}
-                            </a>
-                          </div>
-                        </div>
-                      ))}
+
+              {/* Clima */}
+              {infoTiempoReal.clima && (
+                <div className="info-card">
+                  <h4>🌤️ Clima Actual</h4>
+                  <div className="clima-info">
+                    <div className="temperatura">
+                      {infoTiempoReal.clima.temperatura}°C
+                    </div>
+                    <div className="clima-descripcion">
+                      {infoTiempoReal.clima.descripcion}
+                    </div>
+                    <div className="clima-detalles">
+                      <span>💧 {infoTiempoReal.clima.humedad}%</span>
+                      <span>🌡️ Sensación: {infoTiempoReal.clima.sensacion}°C</span>
                     </div>
                   </div>
-                )}
+                </div>
+              )}
+
+              {/* Diferencia horaria */}
+              {infoTiempoReal.diferenciaHoraria && (
+                <div className="info-card">
+                  <h4>🕐 Hora Local</h4>
+                  <div className="hora-info">
+                    <div className="hora-destino">
+                      {infoTiempoReal.diferenciaHoraria.horaDestino}
+                    </div>
+                    <div className="diferencia">
+                      {infoTiempoReal.diferenciaHoraria.diferenciaTexto}
+                    </div>
+                    <div className="hora-local">
+                      Tu hora: {infoTiempoReal.diferenciaHoraria.horaLocal}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Tipo de cambio */}
+              {infoTiempoReal.tipoCambio && (
+                <div className="info-card">
+                  <h4>💱 Tipo de Cambio</h4>
+                  <div className="cambio-info">
+                    <div className="cambio-rate">
+                      1 USD = {infoTiempoReal.tipoCambio.rate.toFixed(2)} {infoTiempoReal.moneda}
+                    </div>
+                    <div className="cambio-fecha">
+                      Actualizado: {infoTiempoReal.tipoCambio.fecha}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="sidebar-footer">
+                <p>🔄 Se actualiza automáticamente</p>
               </div>
             </div>
-          ))}
-          
-          {cargando && (
-            <div className="mensaje mensaje-alex">
-              <div className="mensaje-header">
-                <span className="mensaje-autor">Alex ✈️</span>
-                <span className="mensaje-hora">{formatearHora(new Date())}</span>
-              </div>
-              <div className="mensaje-contenido cargando">
-                <div className="typing-indicator">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </div>
-                Alex está escribiendo...
-              </div>
+          ) : (
+            <div className="sidebar-empty">
+              <p>💬 Chatea con Alex para ver información del destino</p>
             </div>
           )}
         </div>
 
-        {error && (
-          <div className="error">
-            {error}
-          </div>
-        )}
+        {/* Chat principal */}
+        <div className="main-content">
+          <div className="container">
+            <h1>ViajeIA - Alex, Tu Consultor Personal de Viajes</h1>
+            
+            {/* Área del chat */}
+            <div className="chat-container" ref={chatRef}>
+              {mensajes.map((mensaje) => (
+                <div 
+                  key={mensaje.id} 
+                  className={`mensaje ${mensaje.tipo === 'usuario' ? 'mensaje-usuario' : 'mensaje-alex'}`}
+                >
+                  <div className="mensaje-header">
+                    <span className="mensaje-autor">
+                      {mensaje.tipo === 'usuario' ? 'Tú' : 'Alex ✈️'}
+                    </span>
+                    <span className="mensaje-hora">
+                      {formatearHora(mensaje.timestamp)}
+                    </span>
+                  </div>
+                  <div className="mensaje-contenido">
+                    {mensaje.contenido.split('\n').map((line, index) => (
+                      <p key={index}>{line}</p>
+                    ))}
+                    
+                    {/* Mostrar fotos si están disponibles */}
+                    {mensaje.fotos && mensaje.fotos.length > 0 && (
+                      <div className="fotos-container">
+                        <div className="fotos-grid">
+                          {mensaje.fotos.map((foto, index) => (
+                            <div key={index} className="foto-item">
+                              <img 
+                                src={foto.url} 
+                                alt={foto.alt}
+                                className="foto-destino"
+                                loading="lazy"
+                              />
+                              <div className="foto-credito">
+                                <a 
+                                  href={foto.photographerUrl} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="fotografo-link"
+                                >
+                                  📸 {foto.photographer}
+                                </a>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+              
+              {cargando && (
+                <div className="mensaje mensaje-alex">
+                  <div className="mensaje-header">
+                    <span className="mensaje-autor">Alex ✈️</span>
+                    <span className="mensaje-hora">{formatearHora(new Date())}</span>
+                  </div>
+                  <div className="mensaje-contenido cargando">
+                    <div className="typing-indicator">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                    Alex está escribiendo...
+                  </div>
+                </div>
+              )}
+            </div>
 
-        {/* Formulario de entrada */}
-        <form onSubmit={handleSubmit} className="form">
-          <input
-            type="text"
-            value={pregunta}
-            onChange={(e) => setPregunta(e.target.value)}
-            placeholder="Escribe tu mensaje aquí..."
-            className="input"
-            disabled={cargando}
-          />
-          
-          <button 
-            type="submit" 
-            className="button"
-            disabled={cargando || !pregunta.trim()}
-          >
-            Enviar
-          </button>
-        </form>
+            {error && (
+              <div className="error">
+                {error}
+              </div>
+            )}
+
+            {/* Formulario de entrada */}
+            <form onSubmit={handleSubmit} className="form">
+              <input
+                type="text"
+                value={pregunta}
+                onChange={(e) => setPregunta(e.target.value)}
+                placeholder="Escribe tu mensaje aquí..."
+                className="input"
+                disabled={cargando}
+              />
+              
+              <button 
+                type="submit" 
+                className="button"
+                disabled={cargando || !pregunta.trim()}
+              >
+                Enviar
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );

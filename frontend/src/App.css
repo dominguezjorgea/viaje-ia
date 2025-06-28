@@ -8,6 +8,188 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Layout principal con sidebar */
+.app-layout {
+  display: flex;
+  width: 100%;
+  max-width: 1400px;
+  height: 90vh;
+  gap: 20px;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 320px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  color: white;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.sidebar-content {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.sidebar-loading {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: #6c757d;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.sidebar-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: #6c757d;
+}
+
+.sidebar-footer {
+  padding: 1rem 1.5rem;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+/* Tarjetas de información */
+.info-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.2rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+}
+
+.info-card h4 {
+  margin: 0 0 0.8rem 0;
+  color: #2c3e50;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.info-card .pais {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* Información del clima */
+.clima-info {
+  text-align: center;
+}
+
+.temperatura {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #667eea;
+  margin-bottom: 0.5rem;
+}
+
+.clima-descripcion {
+  color: #495057;
+  font-size: 0.9rem;
+  margin-bottom: 0.8rem;
+  text-transform: capitalize;
+}
+
+.clima-detalles {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+/* Información de hora */
+.hora-info {
+  text-align: center;
+}
+
+.hora-destino {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #667eea;
+  margin-bottom: 0.5rem;
+}
+
+.diferencia {
+  color: #495057;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.hora-local {
+  color: #6c757d;
+  font-size: 0.8rem;
+}
+
+/* Información de tipo de cambio */
+.cambio-info {
+  text-align: center;
+}
+
+.cambio-rate {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #667eea;
+  margin-bottom: 0.5rem;
+}
+
+.cambio-fecha {
+  color: #6c757d;
+  font-size: 0.8rem;
+}
+
+/* Main content */
+.main-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .container {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -385,9 +567,43 @@ h1 {
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
+  .app-layout {
+    flex-direction: column;
+    height: auto;
+    max-width: 800px;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+  }
+  
+  .main-content {
+    width: 100%;
+  }
+  
   .container {
-    height: 90vh;
+    height: 70vh;
+  }
+}
+
+@media (max-width: 768px) {
+  .App {
+    padding: 10px;
+  }
+  
+  .app-layout {
+    gap: 10px;
+  }
+  
+  .sidebar {
+    max-height: 250px;
+  }
+  
+  .container {
+    height: 60vh;
     padding: 1rem;
   }
   
@@ -434,5 +650,21 @@ h1 {
   
   .button {
     width: 100%;
+  }
+  
+  .info-card {
+    padding: 1rem;
+  }
+  
+  .temperatura {
+    font-size: 1.5rem;
+  }
+  
+  .hora-destino {
+    font-size: 1.5rem;
+  }
+  
+  .cambio-rate {
+    font-size: 1rem;
   }
 }
