@@ -1,205 +1,230 @@
-# ViajeIA - Tu Asistente Personal de Viajes
+# ViajeIA - Alex, Tu Consultor Personal de Viajes ✈️
 
-Una aplicación web moderna que utiliza React para el frontend y Node.js + Express para el backend, integrada con la API de OpenAI para proporcionar asistencia personalizada en la planificación de viajes, incluyendo información del clima en tiempo real y fotos hermosas de los destinos.
+Una aplicación web moderna que combina inteligencia artificial con datos en tiempo real para crear la experiencia de planificación de viajes más personalizada e interactiva.
 
-## 🚀 Características
+## 🌟 Características Principales
 
-- **Frontend React**: Interfaz moderna y responsiva
-- **Backend Node.js**: API REST segura con Express
-- **Integración OpenAI**: Asistente de IA para planificación de viajes
-- **Información del Clima**: Datos meteorológicos en tiempo real con OpenWeatherMap
-- **Fotos de Destinos**: Imágenes hermosas automáticas con Unsplash
-- **Formulario de Encuesta**: Captura inicial de preferencias de viaje
-- **Chat Conversacional**: Historial de conversación mantenido
-- **Diseño Moderno**: UI/UX profesional con gradientes y efectos visuales
-- **Manejo de Estados**: Estados de carga, error y respuesta
-- **Responsive**: Optimizado para móviles y desktop
+### 🤖 Alex - Tu Asistente Inteligente
 
-## 📁 Estructura del Proyecto
+- **Personalidad única**: Alex es entusiasta, amigable y hace preguntas relevantes
+- **Memoria contextual**: Recuerda el último destino consultado y el historial completo de la conversación
+- **Referencias inteligentes**: Entiende cuando preguntas "¿y qué tal el transporte allí?" y sabe a qué destino te refieres
+- **Respuestas organizadas**: Usa bullets, emojis y estructura clara para facilitar la lectura
 
-```
-viaje-ia/
-├── backend/
-│   ├── server.js          # Servidor Express
-│   ├── package.json       # Dependencias del backend
-│   └── env.example        # Variables de entorno (ejemplo)
-├── frontend/
-│   ├── src/
-│   │   ├── App.js         # Componente principal
-│   │   └── App.css        # Estilos CSS
-│   └── package.json       # Dependencias del frontend
-└── README.md
-```
+### 📋 Sistema de Memoria y Contexto
 
-## 🛠️ Instalación y Configuración
+- **Historial visible**: Panel desplegable que muestra todas las preguntas anteriores con fechas y destinos
+- **Contexto persistente**: Mantiene información de la sesión durante 30 minutos
+- **Referencias automáticas**: Alex automáticamente usa el último destino mencionado cuando no especificas uno
+- **Seguimiento de conversación**: Construye respuestas basadas en preguntas anteriores
+
+### 🌤️ Información en Tiempo Real
+
+- **Clima actual**: Temperatura, sensación térmica, humedad y descripción del clima
+- **Tipo de cambio**: Tasas de conversión actualizadas automáticamente
+- **Diferencia horaria**: Hora local vs tu hora actual
+- **Panel lateral**: Información organizada y fácil de consultar
+
+### 📸 Fotos Inspiradoras
+
+- **Fotos reales**: Imágenes de alta calidad de Unsplash
+- **Créditos de fotógrafos**: Enlaces a los artistas originales
+- **Grid responsivo**: Adaptable a diferentes tamaños de pantalla
+
+### 🎯 Formulario Inicial Inteligente
+
+- **Recopilación de contexto**: Destino, fechas, presupuesto y preferencias
+- **Personalización**: Alex usa esta información para recomendaciones específicas
+- **Experiencia fluida**: Transición suave del formulario al chat
+
+## 🚀 Tecnologías Utilizadas
+
+### Frontend
+
+- **React.js**: Interfaz de usuario moderna y responsiva
+- **CSS3**: Estilos avanzados con gradientes, animaciones y diseño responsivo
+- **Hooks**: useState, useEffect, useRef para manejo de estado
+
+### Backend
+
+- **Node.js**: Servidor JavaScript del lado del servidor
+- **Express.js**: Framework web para APIs RESTful
+- **OpenAI GPT-3.5**: Inteligencia artificial para respuestas contextuales
+- **Axios**: Cliente HTTP para llamadas a APIs externas
+- **Moment.js**: Manejo de zonas horarias y fechas
+
+### APIs Externas
+
+- **OpenWeatherMap**: Datos meteorológicos en tiempo real
+- **Unsplash**: Fotos de alta calidad de destinos turísticos
+- **Exchange Rate API**: Tasas de cambio de monedas
+
+## 📦 Instalación y Configuración
 
 ### Prerrequisitos
 
 - Node.js (versión 14 o superior)
 - npm o yarn
-- Clave de API de OpenAI
-- Clave de API de OpenWeatherMap (opcional, para información del clima)
-- Clave de API de Unsplash (opcional, para fotos de destinos)
+- Cuentas en las APIs externas (ver sección de configuración)
 
-### 1. Configurar el Backend
+### 1. Clonar el repositorio
+
+```bash
+git clone <url-del-repositorio>
+cd viaje-ia
+```
+
+### 2. Configurar el Backend
 
 ```bash
 cd backend
-
-# Instalar dependencias
 npm install
-
-# Crear archivo .env
-cp env.example .env
-
-# Editar .env y agregar tus claves de API
-# OPENAI_API_KEY=tu_clave_de_openai_aqui
-# OPENWEATHER_API_KEY=tu_clave_de_openweather_aqui
-# UNSPLASH_ACCESS_KEY=tu_clave_de_unsplash_aqui
 ```
 
-### 2. Configurar el Frontend
+Crear archivo `.env` basado en `env.example`:
+
+```env
+OPENAI_API_KEY=tu_clave_de_openai
+OPENWEATHER_API_KEY=tu_clave_de_openweather
+UNSPLASH_ACCESS_KEY=tu_clave_de_unsplash
+PORT=3001
+```
+
+### 3. Configurar el Frontend
 
 ```bash
-cd frontend
-
-# Instalar dependencias
+cd ../frontend
 npm install
 ```
 
-## 🔑 Obtener Claves de API
+### 4. Obtener Claves de API
 
-### OpenAI API Key
+#### OpenAI API Key
 
-1. Ve a https://platform.openai.com/
+1. Ve a [OpenAI Platform](https://platform.openai.com/)
 2. Crea una cuenta o inicia sesión
-3. Ve a "API Keys" y genera una nueva clave
-4. Copia la clave en tu archivo `.env`
+3. Ve a "API Keys" en tu dashboard
+4. Crea una nueva clave API
+5. Copia la clave al archivo `.env`
 
-### OpenWeatherMap API Key (Opcional)
+#### OpenWeatherMap API Key
 
-1. Ve a https://openweathermap.org/
-2. Haz clic en "Sign Up" (registro gratuito)
-3. Completa el formulario con tu email y contraseña
-4. Verifica tu email (revisa spam si no llega)
-5. Inicia sesión y ve a "My API Keys"
-6. Copia tu API Key (es gratuita y permite 1000 llamadas/día)
-7. Agrega la clave en tu archivo `.env`
+1. Ve a [OpenWeatherMap](https://openweathermap.org/api)
+2. Regístrate para obtener una cuenta gratuita
+3. Ve a "My API Keys"
+4. Copia tu clave API al archivo `.env`
 
-### Unsplash API Key (Opcional)
+#### Unsplash API Key
 
-1. Ve a https://unsplash.com/developers
-2. Haz clic en "Register as a developer"
-3. Crea una cuenta o inicia sesión
-4. Crea una nueva aplicación
-5. Copia tu Access Key (es gratuita y permite 5000 llamadas/día)
-6. Agrega la clave en tu archivo `.env`
+1. Ve a [Unsplash Developers](https://unsplash.com/developers)
+2. Crea una cuenta de desarrollador
+3. Crea una nueva aplicación
+4. Copia tu "Access Key" al archivo `.env`
 
-## 🚀 Ejecutar la Aplicación
+### 5. Ejecutar la aplicación
 
-### Terminal 1 - Backend
+#### Terminal 1 - Backend
 
 ```bash
 cd backend
-npm run dev
+npm start
 ```
 
-El servidor estará disponible en: http://localhost:3001
-
-### Terminal 2 - Frontend
+#### Terminal 2 - Frontend
 
 ```bash
 cd frontend
 npm start
 ```
 
-La aplicación estará disponible en: http://localhost:3000
+La aplicación estará disponible en `http://localhost:3000`
 
-## 🔧 Configuración de Variables de Entorno
+## 🎮 Cómo Usar
 
-En el archivo `backend/.env`:
+### 1. Formulario Inicial
 
-```env
-OPENAI_API_KEY=tu_clave_de_openai_aqui
-OPENWEATHER_API_KEY=tu_clave_de_openweather_aqui
-UNSPLASH_ACCESS_KEY=tu_clave_de_unsplash_aqui
-PORT=3001
-```
+- Completa el formulario con tu destino, fechas, presupuesto y preferencias
+- Esta información ayuda a Alex a darte recomendaciones más específicas
 
-## 📝 Uso
+### 2. Chat con Alex
 
-1. Abre http://localhost:3000 en tu navegador
-2. Completa el formulario inicial con:
-   - Destino de viaje
-   - Fechas de inicio y fin
-   - Presupuesto aproximado
-   - Tipo de experiencia preferida
-3. Alex te dará recomendaciones personalizadas
-4. Si mencionas un destino, Alex automáticamente incluirá:
-   - Información del clima actual
-   - 3 fotos hermosas del lugar
-5. Continúa la conversación con preguntas específicas
+- Escribe preguntas naturales como "¿Qué tal el transporte allí?"
+- Alex recordará el contexto y te dará respuestas personalizadas
+- Usa el botón "📋 Historial" para ver tus preguntas anteriores
 
-## 🌤️ Funcionalidad del Clima
+### 3. Información en Tiempo Real
 
-La aplicación automáticamente detecta cuando mencionas un destino y muestra:
+- El panel lateral se actualiza automáticamente con información del destino
+- Incluye clima, tipo de cambio y diferencia horaria
+- Se puede cerrar y abrir según necesites
 
-- Temperatura actual en grados Celsius
-- Sensación térmica
-- Condición del clima (soleado, nublado, lluvioso, etc.)
-- Humedad del aire
-- Consejos personalizados basados en el clima
+### 4. Fotos Inspiradoras
 
-## 📸 Funcionalidad de Fotos
+- Alex incluye fotos reales del destino en sus respuestas
+- Haz clic en los créditos de fotógrafos para ver más de su trabajo
 
-Cuando Alex responde sobre un destino, automáticamente muestra:
+## 🔧 Características Técnicas Avanzadas
 
-- 3 fotos hermosas del lugar en formato landscape
-- Créditos a los fotógrafos de Unsplash
-- Diseño responsivo con efectos hover
-- Carga lazy para mejor rendimiento
+### Sistema de Memoria
 
-**Ciudades soportadas**: París, Madrid, Barcelona, Roma, Londres, Nueva York, Tokio, Sídney, Buenos Aires, Ciudad de México, Bogotá, Lima, Santiago, Río de Janeiro, São Paulo, Berlín, Ámsterdam, Viena, Praga, Budapest, Estambul, Dubái, Singapur, Bangkok, Seúl, Pekín, Shanghái, Hong Kong, Mumbai, Delhi, El Cairo, Ciudad del Cabo, Marrakech, Casablanca, Lisboa, Oporto, Atenas, Milán, Venecia, Florencia, Nápoles, Sevilla, Valencia, Granada, Bilbao, San Sebastián, Ibiza, Mallorca, Tenerife, Las Palmas y más.
+- **Almacenamiento por sesión**: Cada usuario tiene su propio contexto
+- **Limpieza automática**: Las sesiones se limpian después de 30 minutos
+- **Persistencia de estado**: Mantiene el último destino y historial de preguntas
 
-## 🎨 Tecnologías Utilizadas
+### Manejo de Contexto
 
-### Frontend
+- **Extracción de ciudades**: Detecta automáticamente nombres de ciudades en el texto
+- **Referencias contextuales**: Entiende pronombres como "allí", "el lugar", etc.
+- **Historial inteligente**: Construye respuestas basadas en conversaciones anteriores
 
-- **React**: Framework de JavaScript para la interfaz de usuario
-- **CSS3**: Estilos modernos con gradientes y efectos visuales
-- **Hooks**: useState, useEffect, useRef para manejo de estado
+### APIs y Datos
 
-### Backend
+- **Manejo de errores robusto**: Fallbacks elegantes cuando las APIs no responden
+- **Caché inteligente**: Evita llamadas repetidas a APIs externas
+- **Datos estructurados**: Información organizada y fácil de procesar
 
-- **Node.js**: Runtime de JavaScript
-- **Express.js**: Framework web para crear APIs
-- **OpenAI API**: Integración con ChatGPT para respuestas de IA
-- **OpenWeatherMap API**: Información meteorológica en tiempo real
-- **Unsplash API**: Fotos de alta calidad de destinos turísticos
-- **Axios**: Cliente HTTP para llamadas a APIs externas
-- **CORS**: Configuración para permitir peticiones del frontend
-- **dotenv**: Manejo seguro de variables de entorno
+## 📱 Diseño Responsivo
 
-## 🔒 Seguridad
+La aplicación está completamente optimizada para:
 
-- Las claves de API se manejan de forma segura en el backend
-- Validación de entrada en el servidor
-- Manejo de errores robusto
-- CORS configurado correctamente
-- Variables de entorno para configuración sensible
+- **Desktop**: Experiencia completa con sidebar y panel de historial
+- **Tablet**: Layout adaptativo con elementos reorganizados
+- **Mobile**: Interfaz optimizada para pantallas pequeñas
 
-## 🚀 Scripts Disponibles
+## 🎨 Características de UX/UI
 
-### Backend
+- **Animaciones suaves**: Transiciones fluidas entre estados
+- **Indicadores de carga**: Feedback visual durante las consultas
+- **Auto-scroll**: El chat se desplaza automáticamente a nuevos mensajes
+- **Diseño moderno**: Gradientes, sombras y efectos visuales atractivos
+- **Accesibilidad**: Contraste adecuado y navegación por teclado
 
-- `npm start`: Ejecuta el servidor en producción
-- `npm run dev`: Ejecuta el servidor en modo desarrollo con nodemon
+## 🔒 Seguridad y Privacidad
 
-### Frontend
+- **Variables de entorno**: Claves API protegidas en el servidor
+- **Validación de entrada**: Sanitización de datos del usuario
+- **Rate limiting**: Protección contra abuso de APIs
+- **Sin almacenamiento persistente**: Los datos se mantienen solo en memoria
 
-- `npm start`: Ejecuta la aplicación en modo desarrollo
-- `npm run build`: Construye la aplicación para producción
-- `npm test`: Ejecuta las pruebas
+## 🚀 Despliegue
+
+### Heroku
+
+1. Conecta tu repositorio a Heroku
+2. Configura las variables de entorno en el dashboard
+3. Despliega automáticamente
+
+### Vercel/Netlify (Frontend)
+
+1. Conecta el directorio `frontend` a tu plataforma
+2. Configura la URL del backend en las variables de entorno
+3. Despliega
+
+### Railway/Render (Backend)
+
+1. Conecta el directorio `backend` a tu plataforma
+2. Configura todas las variables de entorno
+3. Despliega
 
 ## 🤝 Contribuir
 
@@ -211,21 +236,25 @@ Cuando Alex responde sobre un destino, automáticamente muestra:
 
 ## 📄 Licencia
 
-Este proyecto está bajo la Licencia ISC.
+Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE.md](LICENSE.md) para detalles.
 
-## 🆘 Soporte
+## 🙏 Agradecimientos
+
+- **OpenAI** por proporcionar la API de GPT-3.5
+- **OpenWeatherMap** por los datos meteorológicos
+- **Unsplash** por las hermosas fotos de destinos
+- **Exchange Rate API** por las tasas de cambio
+- **React y Node.js** por las excelentes herramientas de desarrollo
+
+## 📞 Soporte
 
 Si tienes problemas o preguntas:
 
-1. Verifica que todas las dependencias estén instaladas
-2. Asegúrate de que el archivo `.env` esté configurado correctamente
-3. Verifica que ambos servidores (frontend y backend) estén corriendo
-4. Revisa la consola del navegador y del servidor para errores
-5. Si el clima no aparece, verifica que tu API key de OpenWeatherMap sea válida
-6. Si las fotos no aparecen, verifica que tu API key de Unsplash sea válida
+1. Revisa la sección de configuración de APIs
+2. Verifica que todas las variables de entorno estén configuradas
+3. Asegúrate de que ambos servidores (frontend y backend) estén corriendo
+4. Abre un issue en el repositorio con detalles del problema
 
-# viaje-ia
+---
 
-# viaje-ia
-
-# viaje-ia
+**¡Disfruta planificando tus viajes con Alex! ✈️🌍**

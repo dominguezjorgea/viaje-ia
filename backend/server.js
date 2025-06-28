@@ -17,6 +17,9 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Almacenamiento de contexto por sesión (en producción usarías una base de datos)
+const sesionesContexto = new Map();
+
 // Mapeo de ciudades a zonas horarias y monedas
 const ciudadesInfo = {
   'paris': { timezone: 'Europe/Paris', currency: 'EUR', country: 'Francia' },
@@ -266,6 +269,31 @@ function extraerCiudades(texto) {
   return ciudadesEncontradas;
 }
 
+// Función para obtener o crear contexto de sesión
+function obtenerContextoSesion(sessionId) {
+  if (!sesionesContexto.has(sessionId)) {
+    sesionesContexto.set(sessionId, {
+      ultimoDestino: null,
+      historialConversacion: [],
+      datosViaje: null,
+      timestamp: Date.now()
+    });
+  }
+  return sesionesContexto.get(sessionId);
+}
+
+// Función para limpiar sesiones antiguas (cada 30 minutos)
+setInterval(() => {
+  const ahora = Date.now();
+  const treintaMinutos = 30 * 60 * 1000;
+  
+  for (const [sessionId, contexto] of sesionesContexto.entries()) {
+    if (ahora - contexto.timestamp > treintaMinutos) {
+      sesionesContexto.delete(sessionId);
+    }
+  }
+}, 30 * 60 * 1000);
+
 // Nuevo endpoint para información en tiempo real
 app.get('/api/info-tiempo-real/:ciudad', async (req, res) => {
   try {
@@ -309,7 +337,7 @@ app.get('/api/info-tiempo-real/:ciudad', async (req, res) => {
 // Ruta para planificar viajes
 app.post('/api/planificar-viaje', async (req, res) => {
   try {
-    const { pregunta, historial = [] } = req.body;
+    const { pregunta, historial = [], sessionId = 'default' } = req.body;
 
     if (!pregunta || pregunta.trim() === '') {
       return res.status(400).json({ 
@@ -317,20 +345,45 @@ app.post('/api/planificar-viaje', async (req, res) => {
       });
     }
 
+    // Obtener contexto de la sesión
+    const contexto = obtenerContextoSesion(sessionId);
+    
     // Extraer ciudades mencionadas en la pregunta
     const ciudades = extraerCiudades(pregunta);
+    let ciudadActual = null;
     let infoClima = null;
     let fotos = null;
 
-    // Obtener clima y fotos de la primera ciudad encontrada
+    // Determinar la ciudad de referencia
     if (ciudades.length > 0) {
+      ciudadActual = ciudades[0];
+      contexto.ultimoDestino = ciudadActual;
+    } else if (contexto.ultimoDestino) {
+      // Si no se menciona una ciudad, usar la última consultada
+      ciudadActual = contexto.ultimoDestino;
+    }
+
+    // Obtener clima y fotos si hay ciudad
+    if (ciudadActual) {
       const [clima, fotosData] = await Promise.all([
-        obtenerClima(ciudades[0].nombre),
-        obtenerFotos(ciudades[0].nombre)
+        obtenerClima(ciudadActual.nombre),
+        obtenerFotos(ciudadActual.nombre)
       ]);
       
       infoClima = clima;
       fotos = fotosData;
+    }
+
+    // Actualizar historial de conversación
+    contexto.historialConversacion.push({
+      pregunta: pregunta.trim(),
+      timestamp: new Date().toISOString(),
+      ciudad: ciudadActual ? ciudadActual.nombre : null
+    });
+
+    // Mantener solo las últimas 10 preguntas
+    if (contexto.historialConversacion.length > 10) {
+      contexto.historialConversacion = contexto.historialConversacion.slice(-10);
     }
 
     // Construir el array de mensajes con el historial
@@ -345,12 +398,10 @@ Siempre me presento como "Alex, tu consultor personal de viajes" y soy:
 • Organizado - uso bullets (•) para estructurar la información
 • Visual - incluyo emojis de viajes relevantes en mis respuestas
 
-Mi estilo de respuesta:
-1. Me presento brevemente como Alex
-2. Muestro entusiasmo por tu consulta
-3. Hago 2-3 preguntas específicas para personalizar mejor mi recomendación
-4. Proporciono información organizada con bullets y emojis
-5. Termino con una nota amigable y motivacional
+CONTEXTO IMPORTANTE:
+• Último destino consultado: ${contexto.ultimoDestino ? contexto.ultimoDestino.nombre : 'Ninguno'}
+• Historial de preguntas: ${contexto.historialConversacion.map(h => h.pregunta).join(', ')}
+• Si el usuario pregunta sobre "allí", "el lugar", "el destino", etc., me refiero a ${contexto.ultimoDestino ? contexto.ultimoDestino.nombre : 'el último destino mencionado'}
 
 IMPORTANTE - Uso del contexto inicial:
 Si el usuario ya completó el formulario inicial, tengo información sobre:
@@ -419,7 +470,7 @@ Sé específico, útil y siempre mantén un tono cálido y profesional.`
     if (fotos && fotos.length > 0) {
       respuesta += `
 
-📸 **¡Mira estas hermosas fotos de ${ciudades[0].nombre} para inspirarte!**`;
+📸 **¡Mira estas hermosas fotos de ${ciudadActual.nombre} para inspirarte!**`;
     }
 
     res.json({ 
@@ -427,13 +478,34 @@ Sé específico, útil y siempre mantén un tono cálido y profesional.`
       pregunta,
       clima: infoClima,
       fotos: fotos,
-      ciudadInfo: ciudades.length > 0 ? ciudades[0] : null
+      ciudadInfo: ciudadActual,
+      historial: contexto.historialConversacion,
+      ultimoDestino: contexto.ultimoDestino
     });
 
   } catch (error) {
     console.error('Error al consultar OpenAI:', error);
     res.status(500).json({ 
       error: 'Error interno del servidor. Intenta de nuevo más tarde.' 
+    });
+  }
+});
+
+// Endpoint para obtener historial de conversación
+app.get('/api/historial/:sessionId', (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const contexto = obtenerContextoSesion(sessionId);
+    
+    res.json({
+      historial: contexto.historialConversacion,
+      ultimoDestino: contexto.ultimoDestino,
+      datosViaje: contexto.datosViaje
+    });
+  } catch (error) {
+    console.error('Error obteniendo historial:', error);
+    res.status(500).json({ 
+      error: 'Error interno del servidor' 
     });
   }
 });
