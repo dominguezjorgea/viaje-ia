@@ -1,12 +1,15 @@
 # ViajeIA - Tu Asistente Personal de Viajes
 
-Una aplicación web moderna que utiliza React para el frontend y Node.js + Express para el backend, integrada con la API de OpenAI para proporcionar asistencia personalizada en la planificación de viajes.
+Una aplicación web moderna que utiliza React para el frontend y Node.js + Express para el backend, integrada con la API de OpenAI para proporcionar asistencia personalizada en la planificación de viajes, incluyendo información del clima en tiempo real.
 
 ## 🚀 Características
 
 - **Frontend React**: Interfaz moderna y responsiva
 - **Backend Node.js**: API REST segura con Express
 - **Integración OpenAI**: Asistente de IA para planificación de viajes
+- **Información del Clima**: Datos meteorológicos en tiempo real con OpenWeatherMap
+- **Formulario de Encuesta**: Captura inicial de preferencias de viaje
+- **Chat Conversacional**: Historial de conversación mantenido
 - **Diseño Moderno**: UI/UX profesional con gradientes y efectos visuales
 - **Manejo de Estados**: Estados de carga, error y respuesta
 - **Responsive**: Optimizado para móviles y desktop
@@ -34,6 +37,7 @@ viaje-ia/
 - Node.js (versión 14 o superior)
 - npm o yarn
 - Clave de API de OpenAI
+- Clave de API de OpenWeatherMap (opcional, para información del clima)
 
 ### 1. Configurar el Backend
 
@@ -44,10 +48,11 @@ cd backend
 npm install
 
 # Crear archivo .env
-cp .env
+cp env.example .env
 
-# Editar .env y agregar tu clave de OpenAI
-# OPENAI_API_KEY=tu_clave_aqui
+# Editar .env y agregar tus claves de API
+# OPENAI_API_KEY=tu_clave_de_openai_aqui
+# OPENWEATHER_API_KEY=tu_clave_de_openweather_aqui
 ```
 
 ### 2. Configurar el Frontend
@@ -58,6 +63,25 @@ cd frontend
 # Instalar dependencias
 npm install
 ```
+
+## 🔑 Obtener Claves de API
+
+### OpenAI API Key
+
+1. Ve a https://platform.openai.com/
+2. Crea una cuenta o inicia sesión
+3. Ve a "API Keys" y genera una nueva clave
+4. Copia la clave en tu archivo `.env`
+
+### OpenWeatherMap API Key (Opcional)
+
+1. Ve a https://openweathermap.org/
+2. Haz clic en "Sign Up" (registro gratuito)
+3. Completa el formulario con tu email y contraseña
+4. Verifica tu email (revisa spam si no llega)
+5. Inicia sesión y ve a "My API Keys"
+6. Copia tu API Key (es gratuita y permite 1000 llamadas/día)
+7. Agrega la clave en tu archivo `.env`
 
 ## 🚀 Ejecutar la Aplicación
 
@@ -85,15 +109,33 @@ En el archivo `backend/.env`:
 
 ```env
 OPENAI_API_KEY=tu_clave_de_openai_aqui
+OPENWEATHER_API_KEY=tu_clave_de_openweather_aqui
 PORT=3001
 ```
 
 ## 📝 Uso
 
 1. Abre http://localhost:3000 en tu navegador
-2. Escribe tu pregunta de viaje (ej: "Quiero ir a París por 5 días")
-3. Haz clic en "Planificar mi viaje"
-4. Espera la respuesta del asistente de IA
+2. Completa el formulario inicial con:
+   - Destino de viaje
+   - Fechas de inicio y fin
+   - Presupuesto aproximado
+   - Tipo de experiencia preferida
+3. Alex te dará recomendaciones personalizadas
+4. Si mencionas un destino, Alex automáticamente incluirá información del clima actual
+5. Continúa la conversación con preguntas específicas
+
+## 🌤️ Funcionalidad del Clima
+
+La aplicación automáticamente detecta cuando mencionas un destino y muestra:
+
+- Temperatura actual en grados Celsius
+- Sensación térmica
+- Condición del clima (soleado, nublado, lluvioso, etc.)
+- Humedad del aire
+- Consejos personalizados basados en el clima
+
+**Ciudades soportadas**: París, Madrid, Barcelona, Roma, Londres, Nueva York, Tokio, Sídney, Buenos Aires, Ciudad de México, Bogotá, Lima, Santiago, Río de Janeiro, São Paulo, Berlín, Ámsterdam, Viena, Praga, Budapest, Estambul, Dubái, Singapur, Bangkok, Seúl, Pekín, Shanghái, Hong Kong, Mumbai, Delhi, El Cairo, Ciudad del Cabo, Marrakech, Casablanca, Lisboa, Oporto, Atenas, Milán, Venecia, Florencia, Nápoles, Sevilla, Valencia, Granada, Bilbao, San Sebastián, Ibiza, Mallorca, Tenerife, Las Palmas y más.
 
 ## 🎨 Tecnologías Utilizadas
 
@@ -101,13 +143,15 @@ PORT=3001
 
 - **React**: Framework de JavaScript para la interfaz de usuario
 - **CSS3**: Estilos modernos con gradientes y efectos visuales
-- **Hooks**: useState para manejo de estado
+- **Hooks**: useState, useEffect, useRef para manejo de estado
 
 ### Backend
 
 - **Node.js**: Runtime de JavaScript
 - **Express.js**: Framework web para crear APIs
 - **OpenAI API**: Integración con ChatGPT para respuestas de IA
+- **OpenWeatherMap API**: Información meteorológica en tiempo real
+- **Axios**: Cliente HTTP para llamadas a APIs externas
 - **CORS**: Configuración para permitir peticiones del frontend
 - **dotenv**: Manejo seguro de variables de entorno
 
@@ -117,6 +161,7 @@ PORT=3001
 - Validación de entrada en el servidor
 - Manejo de errores robusto
 - CORS configurado correctamente
+- Variables de entorno para configuración sensible
 
 ## 🚀 Scripts Disponibles
 
@@ -151,7 +196,10 @@ Si tienes problemas o preguntas:
 2. Asegúrate de que el archivo `.env` esté configurado correctamente
 3. Verifica que ambos servidores (frontend y backend) estén corriendo
 4. Revisa la consola del navegador y del servidor para errores
+5. Si el clima no aparece, verifica que tu API key de OpenWeatherMap sea válida
 
 # viaje-ia
+
 # viaje-ia
+
 # viaje-ia

@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const OpenAI = require('openai');
+const axios = require('axios');
 require('dotenv').config();
 
 const app = express();
@@ -15,6 +16,134 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Función para obtener el clima de una ciudad
+async function obtenerClima(ciudad) {
+  try {
+    const apiKey = process.env.OPENWEATHER_API_KEY;
+    if (!apiKey) {
+      console.log('OpenWeather API key no configurada');
+      return null;
+    }
+
+    const response = await axios.get(
+      `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(ciudad)}&appid=${apiKey}&units=metric&lang=es`
+    );
+
+    const data = response.data;
+    return {
+      temperatura: Math.round(data.main.temp),
+      sensacion: Math.round(data.main.feels_like),
+      humedad: data.main.humidity,
+      descripcion: data.weather[0].description,
+      icono: data.weather[0].icon,
+      ciudad: data.name,
+      pais: data.sys.country
+    };
+  } catch (error) {
+    console.log(`Error obteniendo clima para ${ciudad}:`, error.message);
+    return null;
+  }
+}
+
+// Función para extraer nombres de ciudades del texto
+function extraerCiudades(texto) {
+  // Lista de ciudades comunes y sus variaciones
+  const ciudadesComunes = {
+    'paris': 'París',
+    'paris,': 'París',
+    'paris.': 'París',
+    'madrid': 'Madrid',
+    'barcelona': 'Barcelona',
+    'roma': 'Roma',
+    'rome': 'Roma',
+    'london': 'Londres',
+    'londres': 'Londres',
+    'new york': 'Nueva York',
+    'tokyo': 'Tokio',
+    'tokio': 'Tokio',
+    'sydney': 'Sídney',
+    'sidney': 'Sídney',
+    'buenos aires': 'Buenos Aires',
+    'mexico': 'Ciudad de México',
+    'mexico city': 'Ciudad de México',
+    'bogota': 'Bogotá',
+    'bogotá': 'Bogotá',
+    'lima': 'Lima',
+    'santiago': 'Santiago',
+    'rio de janeiro': 'Río de Janeiro',
+    'sao paulo': 'São Paulo',
+    'berlin': 'Berlín',
+    'amsterdam': 'Ámsterdam',
+    'amsterdam,': 'Ámsterdam',
+    'amsterdam.': 'Ámsterdam',
+    'vienna': 'Viena',
+    'viena': 'Viena',
+    'prague': 'Praga',
+    'praga': 'Praga',
+    'budapest': 'Budapest',
+    'istanbul': 'Estambul',
+    'dubai': 'Dubái',
+    'dubai,': 'Dubái',
+    'dubai.': 'Dubái',
+    'singapore': 'Singapur',
+    'singapur': 'Singapur',
+    'bangkok': 'Bangkok',
+    'seoul': 'Seúl',
+    'seul': 'Seúl',
+    'beijing': 'Pekín',
+    'pekin': 'Pekín',
+    'shanghai': 'Shanghái',
+    'shanghai,': 'Shanghái',
+    'shanghai.': 'Shanghái',
+    'hong kong': 'Hong Kong',
+    'mumbai': 'Mumbai',
+    'delhi': 'Delhi',
+    'cairo': 'El Cairo',
+    'el cairo': 'El Cairo',
+    'cape town': 'Ciudad del Cabo',
+    'ciudad del cabo': 'Ciudad del Cabo',
+    'marrakech': 'Marrakech',
+    'casablanca': 'Casablanca',
+    'lisbon': 'Lisboa',
+    'lisboa': 'Lisboa',
+    'porto': 'Oporto',
+    'athens': 'Atenas',
+    'atena': 'Atenas',
+    'milan': 'Milán',
+    'milan,': 'Milán',
+    'milan.': 'Milán',
+    'venice': 'Venecia',
+    'venecia': 'Venecia',
+    'florence': 'Florencia',
+    'florencia': 'Florencia',
+    'naples': 'Nápoles',
+    'napoles': 'Nápoles',
+    'seville': 'Sevilla',
+    'sevilla': 'Sevilla',
+    'valencia': 'Valencia',
+    'granada': 'Granada',
+    'bilbao': 'Bilbao',
+    'san sebastian': 'San Sebastián',
+    'san sebastián': 'San Sebastián',
+    'ibiza': 'Ibiza',
+    'mallorca': 'Mallorca',
+    'tenerife': 'Tenerife',
+    'las palmas': 'Las Palmas',
+    'las palmas de gran canaria': 'Las Palmas de Gran Canaria'
+  };
+
+  const textoLower = texto.toLowerCase();
+  const ciudadesEncontradas = [];
+
+  for (const [variacion, ciudad] of Object.entries(ciudadesComunes)) {
+    if (textoLower.includes(variacion)) {
+      ciudadesEncontradas.push(ciudad);
+    }
+  }
+
+  return ciudadesEncontradas;
+}
+
 // Ruta para planificar viajes
 app.post('/api/planificar-viaje', async (req, res) => {
   try {
@@ -24,6 +153,15 @@ app.post('/api/planificar-viaje', async (req, res) => {
       return res.status(400).json({ 
         error: 'Por favor, proporciona una pregunta válida' 
       });
+    }
+
+    // Extraer ciudades mencionadas en la pregunta
+    const ciudades = extraerCiudades(pregunta);
+    let infoClima = null;
+
+    // Obtener clima de la primera ciudad encontrada
+    if (ciudades.length > 0) {
+      infoClima = await obtenerClima(ciudades[0]);
     }
 
     // Construir el array de mensajes con el historial
@@ -58,6 +196,12 @@ Debo usar esta información para:
 • Considerar la duración del viaje
 • Adaptar el tono según el tipo de experiencia
 
+INFORMACIÓN DEL CLIMA:
+Si tengo información del clima actual del destino, debo incluirla de forma natural en mi respuesta, mencionando:
+• La temperatura actual
+• La descripción del clima
+• Recomendaciones basadas en el clima (qué ropa llevar, actividades apropiadas, etc.)
+
 Ejemplos de emojis que uso: ✈️🌍🏖️🏔️🗺️🍕🎭🎨🏛️🌅🌆🏨🚗🚇🎒💼📸
 
 IMPORTANTE: Mantén el contexto de la conversación. Si ya hemos hablado sobre un destino, no te repitas. Construye sobre la información anterior y haz preguntas más específicas basadas en lo que ya sabemos.
@@ -81,11 +225,28 @@ Sé específico, útil y siempre mantén un tono cálido y profesional.`
       temperature: 0.8,
     });
 
-    const respuesta = completion.choices[0].message.content;
+    let respuesta = completion.choices[0].message.content;
+
+    // Agregar información del clima si está disponible
+    if (infoClima) {
+      const climaInfo = `
+
+🌤️ **Clima actual en ${infoClima.ciudad}, ${infoClima.pais}:**
+• Temperatura: ${infoClima.temperatura}°C (sensación térmica: ${infoClima.sensacion}°C)
+• Condición: ${infoClima.descripcion}
+• Humedad: ${infoClima.humedad}%
+
+💡 **Consejo de Alex:** ${infoClima.temperatura > 25 ? '¡Perfecto para actividades al aire libre! 🌞' : 
+                        infoClima.temperatura > 15 ? 'Temperatura agradable para explorar la ciudad 🚶‍♂️' : 
+                        '¡No olvides llevar abrigo! 🧥'}`;
+
+      respuesta += climaInfo;
+    }
 
     res.json({ 
       respuesta,
-      pregunta 
+      pregunta,
+      clima: infoClima
     });
 
   } catch (error) {
