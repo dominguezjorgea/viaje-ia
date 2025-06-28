@@ -1,6 +1,6 @@
 # ViajeIA - Tu Asistente Personal de Viajes
 
-Una aplicación web moderna que utiliza React para el frontend y Node.js + Express para el backend, integrada con la API de OpenAI para proporcionar asistencia personalizada en la planificación de viajes, incluyendo información del clima en tiempo real.
+Una aplicación web moderna que utiliza React para el frontend y Node.js + Express para el backend, integrada con la API de OpenAI para proporcionar asistencia personalizada en la planificación de viajes, incluyendo información del clima en tiempo real y fotos hermosas de los destinos.
 
 ## 🚀 Características
 
@@ -8,6 +8,7 @@ Una aplicación web moderna que utiliza React para el frontend y Node.js + Expre
 - **Backend Node.js**: API REST segura con Express
 - **Integración OpenAI**: Asistente de IA para planificación de viajes
 - **Información del Clima**: Datos meteorológicos en tiempo real con OpenWeatherMap
+- **Fotos de Destinos**: Imágenes hermosas automáticas con Unsplash
 - **Formulario de Encuesta**: Captura inicial de preferencias de viaje
 - **Chat Conversacional**: Historial de conversación mantenido
 - **Diseño Moderno**: UI/UX profesional con gradientes y efectos visuales
@@ -38,6 +39,7 @@ viaje-ia/
 - npm o yarn
 - Clave de API de OpenAI
 - Clave de API de OpenWeatherMap (opcional, para información del clima)
+- Clave de API de Unsplash (opcional, para fotos de destinos)
 
 ### 1. Configurar el Backend
 
@@ -53,6 +55,7 @@ cp env.example .env
 # Editar .env y agregar tus claves de API
 # OPENAI_API_KEY=tu_clave_de_openai_aqui
 # OPENWEATHER_API_KEY=tu_clave_de_openweather_aqui
+# UNSPLASH_ACCESS_KEY=tu_clave_de_unsplash_aqui
 ```
 
 ### 2. Configurar el Frontend
@@ -83,6 +86,15 @@ npm install
 6. Copia tu API Key (es gratuita y permite 1000 llamadas/día)
 7. Agrega la clave en tu archivo `.env`
 
+### Unsplash API Key (Opcional)
+
+1. Ve a https://unsplash.com/developers
+2. Haz clic en "Register as a developer"
+3. Crea una cuenta o inicia sesión
+4. Crea una nueva aplicación
+5. Copia tu Access Key (es gratuita y permite 5000 llamadas/día)
+6. Agrega la clave en tu archivo `.env`
+
 ## 🚀 Ejecutar la Aplicación
 
 ### Terminal 1 - Backend
@@ -110,6 +122,7 @@ En el archivo `backend/.env`:
 ```env
 OPENAI_API_KEY=tu_clave_de_openai_aqui
 OPENWEATHER_API_KEY=tu_clave_de_openweather_aqui
+UNSPLASH_ACCESS_KEY=tu_clave_de_unsplash_aqui
 PORT=3001
 ```
 
@@ -122,7 +135,9 @@ PORT=3001
    - Presupuesto aproximado
    - Tipo de experiencia preferida
 3. Alex te dará recomendaciones personalizadas
-4. Si mencionas un destino, Alex automáticamente incluirá información del clima actual
+4. Si mencionas un destino, Alex automáticamente incluirá:
+   - Información del clima actual
+   - 3 fotos hermosas del lugar
 5. Continúa la conversación con preguntas específicas
 
 ## 🌤️ Funcionalidad del Clima
@@ -134,6 +149,15 @@ La aplicación automáticamente detecta cuando mencionas un destino y muestra:
 - Condición del clima (soleado, nublado, lluvioso, etc.)
 - Humedad del aire
 - Consejos personalizados basados en el clima
+
+## 📸 Funcionalidad de Fotos
+
+Cuando Alex responde sobre un destino, automáticamente muestra:
+
+- 3 fotos hermosas del lugar en formato landscape
+- Créditos a los fotógrafos de Unsplash
+- Diseño responsivo con efectos hover
+- Carga lazy para mejor rendimiento
 
 **Ciudades soportadas**: París, Madrid, Barcelona, Roma, Londres, Nueva York, Tokio, Sídney, Buenos Aires, Ciudad de México, Bogotá, Lima, Santiago, Río de Janeiro, São Paulo, Berlín, Ámsterdam, Viena, Praga, Budapest, Estambul, Dubái, Singapur, Bangkok, Seúl, Pekín, Shanghái, Hong Kong, Mumbai, Delhi, El Cairo, Ciudad del Cabo, Marrakech, Casablanca, Lisboa, Oporto, Atenas, Milán, Venecia, Florencia, Nápoles, Sevilla, Valencia, Granada, Bilbao, San Sebastián, Ibiza, Mallorca, Tenerife, Las Palmas y más.
 
@@ -151,6 +175,7 @@ La aplicación automáticamente detecta cuando mencionas un destino y muestra:
 - **Express.js**: Framework web para crear APIs
 - **OpenAI API**: Integración con ChatGPT para respuestas de IA
 - **OpenWeatherMap API**: Información meteorológica en tiempo real
+- **Unsplash API**: Fotos de alta calidad de destinos turísticos
 - **Axios**: Cliente HTTP para llamadas a APIs externas
 - **CORS**: Configuración para permitir peticiones del frontend
 - **dotenv**: Manejo seguro de variables de entorno
@@ -197,6 +222,7 @@ Si tienes problemas o preguntas:
 3. Verifica que ambos servidores (frontend y backend) estén corriendo
 4. Revisa la consola del navegador y del servidor para errores
 5. Si el clima no aparece, verifica que tu API key de OpenWeatherMap sea válida
+6. Si las fotos no aparecen, verifica que tu API key de Unsplash sea válida
 
 # viaje-ia
 

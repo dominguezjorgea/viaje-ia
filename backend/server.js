@@ -16,6 +16,38 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Función para obtener fotos de Unsplash
+async function obtenerFotos(ciudad) {
+  try {
+    const accessKey = process.env.UNSPLASH_ACCESS_KEY;
+    if (!accessKey) {
+      console.log('Unsplash API key no configurada');
+      return null;
+    }
+
+    const response = await axios.get(
+      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(ciudad + ' travel')}&per_page=3&orientation=landscape`,
+      {
+        headers: {
+          'Authorization': `Client-ID ${accessKey}`
+        }
+      }
+    );
+
+    const fotos = response.data.results.map(foto => ({
+      url: foto.urls.regular,
+      alt: foto.alt_description || `${ciudad} travel`,
+      photographer: foto.user.name,
+      photographerUrl: foto.user.links.html
+    }));
+
+    return fotos;
+  } catch (error) {
+    console.log(`Error obteniendo fotos para ${ciudad}:`, error.message);
+    return null;
+  }
+}
+
 // Función para obtener el clima de una ciudad
 async function obtenerClima(ciudad) {
   try {
@@ -158,10 +190,17 @@ app.post('/api/planificar-viaje', async (req, res) => {
     // Extraer ciudades mencionadas en la pregunta
     const ciudades = extraerCiudades(pregunta);
     let infoClima = null;
+    let fotos = null;
 
-    // Obtener clima de la primera ciudad encontrada
+    // Obtener clima y fotos de la primera ciudad encontrada
     if (ciudades.length > 0) {
-      infoClima = await obtenerClima(ciudades[0]);
+      const [clima, fotosData] = await Promise.all([
+        obtenerClima(ciudades[0]),
+        obtenerFotos(ciudades[0])
+      ]);
+      
+      infoClima = clima;
+      fotos = fotosData;
     }
 
     // Construir el array de mensajes con el historial
@@ -201,6 +240,9 @@ Si tengo información del clima actual del destino, debo incluirla de forma natu
 • La temperatura actual
 • La descripción del clima
 • Recomendaciones basadas en el clima (qué ropa llevar, actividades apropiadas, etc.)
+
+FOTOS DEL DESTINO:
+Si tengo fotos del destino, debo mencionar que se están mostrando fotos hermosas del lugar para inspirar al viajero.
 
 Ejemplos de emojis que uso: ✈️🌍🏖️🏔️🗺️🍕🎭🎨🏛️🌅🌆🏨🚗🚇🎒💼📸
 
@@ -243,10 +285,18 @@ Sé específico, útil y siempre mantén un tono cálido y profesional.`
       respuesta += climaInfo;
     }
 
+    // Agregar mención de fotos si están disponibles
+    if (fotos && fotos.length > 0) {
+      respuesta += `
+
+📸 **¡Mira estas hermosas fotos de ${ciudades[0]} para inspirarte!**`;
+    }
+
     res.json({ 
       respuesta,
       pregunta,
-      clima: infoClima
+      clima: infoClima,
+      fotos: fotos
     });
 
   } catch (error) {

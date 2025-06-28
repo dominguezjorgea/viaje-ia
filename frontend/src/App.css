@@ -204,6 +204,67 @@ h1 {
   margin-bottom: 0;
 }
 
+/* Fotos del destino */
+.fotos-container {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.fotos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.foto-item {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.foto-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.foto-destino {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.foto-item:hover .foto-destino {
+  transform: scale(1.05);
+}
+
+.foto-credito {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.fotografo-link {
+  color: white;
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: opacity 0.3s ease;
+}
+
+.fotografo-link:hover {
+  opacity: 0.8;
+}
+
 /* Indicador de escritura */
 .cargando {
   display: flex;
@@ -355,6 +416,15 @@ h1 {
   
   .mensaje {
     max-width: 90%;
+  }
+  
+  .fotos-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .foto-destino {
+    height: 120px;
   }
   
   .form {

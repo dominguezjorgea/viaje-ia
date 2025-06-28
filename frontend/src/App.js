@@ -95,7 +95,8 @@ function App() {
         id: Date.now() + 1,
         tipo: 'alex',
         contenido: data.respuesta,
-        timestamp: new Date()
+        timestamp: new Date(),
+        fotos: data.fotos || null
       };
 
       setMensajes(prev => [...prev, respuestaAlex]);
@@ -151,7 +152,8 @@ function App() {
         id: Date.now() + 1,
         tipo: 'alex',
         contenido: data.respuesta,
-        timestamp: new Date()
+        timestamp: new Date(),
+        fotos: data.fotos || null
       };
 
       setMensajes(prev => [...prev, respuestaAlex]);
@@ -304,6 +306,34 @@ function App() {
                 {mensaje.contenido.split('\n').map((line, index) => (
                   <p key={index}>{line}</p>
                 ))}
+                
+                {/* Mostrar fotos si están disponibles */}
+                {mensaje.fotos && mensaje.fotos.length > 0 && (
+                  <div className="fotos-container">
+                    <div className="fotos-grid">
+                      {mensaje.fotos.map((foto, index) => (
+                        <div key={index} className="foto-item">
+                          <img 
+                            src={foto.url} 
+                            alt={foto.alt}
+                            className="foto-destino"
+                            loading="lazy"
+                          />
+                          <div className="foto-credito">
+                            <a 
+                              href={foto.photographerUrl} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="fotografo-link"
+                            >
+                              📸 {foto.photographer}
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))}
