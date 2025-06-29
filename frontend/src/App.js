@@ -23,6 +23,8 @@ function App() {
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
 
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:3009';
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -62,7 +64,7 @@ function App() {
     setInputMessage('');
 
     try {
-      const response = await fetch('http://localhost:3009/api/planificar-viaje', {
+      const response = await fetch(`${backendUrl}/api/planificar-viaje`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -130,7 +132,7 @@ function App() {
 
   const fetchSidebarInfo = async (ciudad) => {
     try {
-      const response = await fetch(`http://localhost:3009/api/info-tiempo-real/${encodeURIComponent(ciudad)}`);
+      const response = await fetch(`${backendUrl}/api/info-tiempo-real/${encodeURIComponent(ciudad)}`);
       const data = await response.json();
       
       if (!data.error) {
@@ -174,7 +176,7 @@ function App() {
       button.disabled = true;
 
       // Llamar al endpoint del backend
-      const response = await fetch(`http://localhost:3001/api/descargar-itinerario/${sessionId}`, {
+      const response = await fetch(`${backendUrl}/api/descargar-itinerario/${sessionId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
