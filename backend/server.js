@@ -4,6 +4,7 @@ const OpenAI = require('openai');
 const axios = require('axios');
 const moment = require('moment-timezone');
 const puppeteer = require('puppeteer');
+const { analizarPreguntaYContexto } = require('./agenteContextual');
 require('dotenv').config();
 
 const app = express();
@@ -371,30 +372,46 @@ function extraerDatosFormulario(mensaje) {
   return datos;
 }
 
+// Función para limpiar contexto de ciudades
+function limpiarContextoCiudades(contexto) {
+  // Mantener solo las últimas 5 ciudades consultadas para evitar confusión
+  if (contexto.ciudadesConsultadas.length > 5) {
+    contexto.ciudadesConsultadas = contexto.ciudadesConsultadas.slice(-5);
+  }
+}
+
 // Función para determinar la ciudad de referencia
 function determinarCiudadReferencia(pregunta, contexto) {
   const ciudades = extraerMultiplesCiudades(pregunta);
   
-  // Si se mencionan ciudades en la pregunta actual
+  // Si se mencionan ciudades específicas en la pregunta actual
   if (ciudades.length > 0) {
-    // Usar la primera ciudad mencionada como referencia
-    const ciudadReferencia = ciudades[0];
+    // Verificar si alguna de las ciudades mencionadas está en el listado de ciudades consultadas
+    const ciudadEnListado = ciudades.find(ciudad => 
+      contexto.ciudadesConsultadas.find(c => c.nombre === ciudad.nombre)
+    );
     
-    // Agregar todas las ciudades encontradas al listado
-    ciudades.forEach(ciudad => {
-      if (!contexto.ciudadesConsultadas.find(c => c.nombre === ciudad.nombre)) {
-        contexto.ciudadesConsultadas.push(ciudad);
-      }
-    });
-    
-    // Actualizar último destino
-    contexto.ultimoDestino = ciudadReferencia;
-    
-    return ciudadReferencia;
+    if (ciudadEnListado) {
+      // Si la ciudad mencionada está en el listado, usarla como referencia
+      console.log(`📍 Ciudad específica mencionada: ${ciudadEnListado.nombre}`);
+      return ciudadEnListado;
+    } else {
+      // Si es una ciudad nueva, agregarla al listado pero no cambiar el destino principal
+      ciudades.forEach(ciudad => {
+        if (!contexto.ciudadesConsultadas.find(c => c.nombre === ciudad.nombre)) {
+          contexto.ciudadesConsultadas.push(ciudad);
+        }
+      });
+      
+      // Usar la primera ciudad nueva como referencia temporal
+      console.log(`📍 Nueva ciudad mencionada: ${ciudades[0].nombre}`);
+      return ciudades[0];
+    }
   }
   
-  // Si no se mencionan ciudades, usar la última consultada
+  // Si no se mencionan ciudades específicas, usar la última consultada
   if (contexto.ultimoDestino) {
+    console.log(`📍 Usando último destino: ${contexto.ultimoDestino.nombre}`);
     return contexto.ultimoDestino;
   }
   
@@ -472,8 +489,22 @@ app.post('/api/planificar-viaje', async (req, res) => {
     let fotos = null;
     let mensajeValidacion = '';
 
-    // Manejo especial para formulario inicial
-    if (esFormularioInicial) {
+    // Detectar si la pregunta es genérica sobre varias ciudades
+    const preguntaGenerica = /esas ciudades|los destinos|todas|todos|allí|todas las ciudades|los lugares|los sitios|los países/i.test(pregunta);
+    let infoClimaMultiple = [];
+    let fotosMultiple = [];
+
+    if (preguntaGenerica && contexto.ciudadesConsultadas.length > 0) {
+      // Obtener clima y fotos de todas las ciudades consultadas
+      for (const ciudad of contexto.ciudadesConsultadas) {
+        const [clima, fotosData] = await Promise.all([
+          obtenerClima(ciudad.nombre),
+          obtenerFotos(ciudad.nombre)
+        ]);
+        infoClimaMultiple.push({ ciudad: ciudad.nombre, clima });
+        fotosMultiple.push({ ciudad: ciudad.nombre, fotos: fotosData });
+      }
+    } else if (esFormularioInicial) {
       const ciudades = extraerMultiplesCiudades(pregunta);
       
       console.log('🔍 Ciudades detectadas en formulario inicial:', ciudades.map(c => c.nombre));
@@ -506,6 +537,8 @@ app.post('/api/planificar-viaje', async (req, res) => {
       // Procesamiento normal para preguntas posteriores
       ciudadActual = determinarCiudadReferencia(pregunta, contexto);
       console.log('🔍 Ciudad de referencia para pregunta normal:', ciudadActual?.nombre);
+      console.log('📋 Ciudades en contexto:', contexto.ciudadesConsultadas.map(c => c.nombre));
+      console.log('🎯 Último destino:', contexto.ultimoDestino?.nombre);
     }
 
     // Obtener clima y fotos si hay ciudad
@@ -533,6 +566,7 @@ app.post('/api/planificar-viaje', async (req, res) => {
     }
 
     // Construir el array de mensajes con el historial
+    const analisis = analizarPreguntaYContexto(pregunta, contexto);
     const mensajes = [
       {
         role: "system",
@@ -562,6 +596,8 @@ MANEJO DE MÚLTIPLES CIUDADES:
 • Si pregunta "¿qué tal Roma?" y Roma está en el listado, respondo sobre Roma
 • Si pregunta "¿y en Londres cómo está el clima?" y Londres está en el listado, respondo sobre Londres
 • Siempre mantengo el contexto de todas las ciudades mencionadas
+• IMPORTANTE: Si el usuario no especifica una ciudad, uso el último destino consultado (${contexto.ultimoDestino ? contexto.ultimoDestino.nombre : 'ninguno'})
+• Si el usuario pregunta "¿qué tal el transporte allí?" o "¿cómo está el clima?", me refiero específicamente a ${contexto.ultimoDestino ? contexto.ultimoDestino.nombre : 'el último destino mencionado'}
 
 IMPORTANTE - Uso del contexto inicial:
 Si el usuario ya completó el formulario inicial, tengo información sobre:
@@ -589,7 +625,9 @@ Ejemplos de emojis que uso: ✈️🌍🏖️🏔️🗺️🍕🎭🎨🏛️�
 
 IMPORTANTE: Mantén el contexto de la conversación. Si ya hemos hablado sobre un destino, no te repitas. Construye sobre la información anterior y haz preguntas más específicas basadas en lo que ya sabemos.
 
-Sé específico, útil y siempre mantén un tono cálido y profesional.`
+Sé específico, útil y siempre mantén un tono cálido y profesional.
+
+${analisis.instrucciones}`
       },
       // Agregar el historial de la conversación
       ...historial,
@@ -638,23 +676,52 @@ Sé específico, útil y siempre mantén un tono cálido y profesional.`
 📸 **¡Mira estas hermosas fotos de ${ciudadActual.nombre} para inspirarte!**`;
     }
 
+    // Construir la respuesta de Alex
+    let respuestaFinal = respuesta;
+    if (preguntaGenerica && infoClimaMultiple.length > 0) {
+      respuestaFinal = '🌍 Aquí tienes el clima y fotos de tus destinos consultados:\n';
+      for (const ciudadObj of infoClimaMultiple) {
+        const ciudad = ciudadObj.ciudad;
+        const clima = ciudadObj.clima;
+        const fotosCiudad = (fotosMultiple.find(f => f.ciudad === ciudad) || {}).fotos || [];
+        respuestaFinal += `\n\n---\n\n**${ciudad}:**\n`;
+        if (clima) {
+          respuestaFinal += `• Temperatura: ${clima.temperatura}°C (sensación: ${clima.sensacion}°C)\n`;
+          respuestaFinal += `• Condición: ${clima.descripcion}\n`;
+          respuestaFinal += `• Humedad: ${clima.humedad}%\n`;
+        } else {
+          respuestaFinal += '• No se pudo obtener el clima actual.\n';
+        }
+        if (fotosCiudad.length > 0) {
+          respuestaFinal += `• Fotos: ${fotosCiudad.slice(0,3).map(f=>f.url).join(', ')}\n`;
+        } else {
+          respuestaFinal += '• No se encontraron fotos para este destino.\n';
+        }
+      }
+    }
+
     // Guardar la respuesta de Alex en el historial
     const respuestaItem = {
-      respuesta: respuesta,
+      respuesta: respuestaFinal,
       timestamp: new Date().toISOString(),
       ciudad: ciudadActual ? ciudadActual.nombre : null
     };
     contexto.historialConversacion.push(respuestaItem);
 
+    // Limpiar contexto de ciudades para evitar confusión
+    limpiarContextoCiudades(contexto);
+
     res.json({ 
-      respuesta,
+      respuesta: respuestaFinal,
       pregunta,
       clima: infoClima,
       fotos: fotos,
       ciudadInfo: ciudadActual,
       historial: contexto.historialConversacion,
       ultimoDestino: contexto.ultimoDestino,
-      ciudadesConsultadas: contexto.ciudadesConsultadas
+      ciudadesConsultadas: contexto.ciudadesConsultadas,
+      infoClimaMultiple,
+      fotosMultiple
     });
 
   } catch (error) {

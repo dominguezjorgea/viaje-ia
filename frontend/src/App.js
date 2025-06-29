@@ -62,7 +62,7 @@ function App() {
     setInputMessage('');
 
     try {
-      const response = await fetch('http://localhost:3001/api/planificar-viaje', {
+      const response = await fetch('http://localhost:3009/api/planificar-viaje', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -130,7 +130,7 @@ function App() {
 
   const fetchSidebarInfo = async (ciudad) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/info-tiempo-real/${encodeURIComponent(ciudad)}`);
+      const response = await fetch(`http://localhost:3009/api/info-tiempo-real/${encodeURIComponent(ciudad)}`);
       const data = await response.json();
       
       if (!data.error) {
